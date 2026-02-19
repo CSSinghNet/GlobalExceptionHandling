@@ -355,40 +355,75 @@ Each handler returns:
 
 ## Examples
 
-### Example 1: Not Found Error
+## Example 1: Not Found Error
 
-**Request:**
+### Request
 
+```csharp
+[HttpGet("{id}")]
+public IActionResult GetProduct(int id)
+{
+    var product = _productService.GetById(id);
 
-**Code:**
-[HttpGet("{id}")] public IActionResult GetProduct(int id) { var product = _productService.GetById(id); if (product is null) throw new NotFoundException($"Product {id} not found");
-return Ok(product);
+    if (product is null)
+        throw new NotFoundException($"Product {id} not found");
 
-**Response:**
-HTTP/1.1 404 Not Found Content-Type: application/json
-{ "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5", "title": "Resource Not Found", "status": 404, "detail": "Product 999 not found", "instance": "/api/products/999", "traceId": "0HN0N5GKFL8PC:00000001" }
+    return Ok(product);
+}
+```
 
+### Response
 
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Resource Not Found",
+  "status": 404,
+  "detail": "Product 999 not found",
+  "instance": "/api/products/999",
+  "traceId": "0HN0N5GKFL8PC:00000001"
+}
+```
 
 ---
 
-### Example 2: Bad Request Error
+## Example 2: Bad Request Error
 
-**Request:**
+### Request
 
-**Code:**
-[HttpPost] public IActionResult CreateProduct(CreateProductRequest request) { if (string.IsNullOrEmpty(request.Name)) throw new BadRequestException("Product name is required");
-if (request.Price <= 0)
-    throw new BadRequestException("Product price must be greater than zero");
+```csharp
+[HttpPost]
+public IActionResult CreateProduct(CreateProductRequest request)
+{
+    if (string.IsNullOrEmpty(request.Name))
+        throw new BadRequestException("Product name is required");
 
-var product = _productService.Create(request);
-return Created($"/api/products/{product.Id}", product);
+    if (request.Price <= 0)
+        throw new BadRequestException("Product price must be greater than zero");
 
+    var product = _productService.Create(request);
+    return Created($"/api/products/{product.Id}", product);
+}
+```
 
-**Response:**
-HTTP/1.1 400 Bad Request Content-Type: application/json
-{ "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1", "title": "Invalid argument provided", "status": 400, "detail": "Product name is required", "instance": "/api/products", "traceId": "0HN0N5GKFL8PC:00000002" }
+### Response
 
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Invalid argument provided",
+  "status": 400,
+  "detail": "Product name is required",
+  "instance": "/api/products",
+  "traceId": "0HN0N5GKFL8PC:00000002"
+}
+```
 
 ---
 
